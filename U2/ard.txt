@@ -1,0 +1,67 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
+
+// Replace with your network credentials
+const char *ssid = "Totalplay-2.4G-fc60";
+const char *password = "tp121314";
+
+// Replace with the URL of the resource you want to get
+const char *url = "https://193e-2806-2f0-5261-fc23-2991-c999-c64a-962c.ngrok-free.app";
+
+void setup()
+{
+  Serial.begin(115200);
+
+  // Connect to the Wi-Fi network
+  Serial.println("Connecting to Wi-Fi...");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("Connected!");
+}
+
+void loop()
+{
+  // Create an HTTPClient object
+  HTTPClient http;
+
+  // Create a WiFiClient object
+  WiFiClient wifiClient;
+
+  // Begin the HTTP GET request using the WiFiClient object
+  http.begin(wifiClient, url);
+
+  // Send the request
+  int httpCode = http.GET();
+
+  // Check the response code
+  if (httpCode > 0)
+  {
+    // Success!
+    Serial.println("HTTP GET request successful!");
+
+    // Get the response payload
+    String payload = http.getString();
+
+    // Print the payload to the serial monitor
+    Serial.println(payload);
+  }
+  else
+  {
+    // Error!
+    Serial.println("HTTP GET request failed!");
+    Serial.println(httpCode);
+  }
+
+  // Close the HTTP connection
+  http.end();
+
+  // Delay for 1 second
+  delay(1000);
+}
+
+ngrok http 7800 --scheme=http --scheme=https     

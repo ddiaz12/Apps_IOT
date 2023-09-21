@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="X-UA-Compatible"
+      content="IE=edge"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Página con python owo</title>
+    <style>
+      body {
+        background-color: #313740;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      .sectionContainer {
+        background-color: #484141;
+        border-radius: 4px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        margin: 20px;
+        padding: 20px;
+        width: 500px;
+      }
+
+      h2,
+      h3 {
+        font-size: 36px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .buttonContainer {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #onButton {
+        background-color: #3498db; /* Blue color for "ON" button */
+        border: none;
+        border-radius: 4px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 0 10px;
+        padding: 10px 20px;
+        text-decoration: none;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      #offButton {
+        background-color: #e74c3c; /* Red color for "OFF" button */
+        border: none;
+        border-radius: 4px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 0 10px;
+        padding: 10px 20px;
+        text-decoration: none;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      #onButton:hover {
+        background-color: #2980b9; /* Slightly darker blue on hover */
+      }
+
+      #offButton:hover {
+        background-color: #c0392b; /* Slightly darker red on hover */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sectionContainer">
+      <h2>Control de LED</h2>
+      <div class="buttonContainer">
+        <button id="onButton">ON</button>
+        <button id="offButton">OFF</button>
+      </div>
+    </div>
+
+    <div class="sectionContainer">
+      <h3>Valor del contador:</h3>
+      <div class="buttonContainer">
+        <h2 id="counter">##</h2>
+      </div>
+    </div>
+  </body>
+  <script>
+    const onButton = document.getElementById("onButton");
+    const offButton = document.getElementById("offButton");
+
+    onButton.addEventListener("click", () => {
+      fetch("/led/on");
+    });
+
+    offButton.addEventListener("click", () => {
+      fetch("/led/off");
+    });
+
+    const updateCounter = () => {
+      fetch("/counter")
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById("counter").innerHTML = data.contador;
+        });
+    };
+
+    setInterval(updateCounter, 1000);
+  </script>
+</html>
