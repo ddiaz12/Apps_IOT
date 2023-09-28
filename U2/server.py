@@ -5,7 +5,7 @@ import os
 contador = 11
 led = False
 temperature = 0
-humedad = 50
+humedad = 0
 
 
 class MyHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -58,7 +58,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
             self._set_response()
             self.wfile.write(json.dumps({"temperature": temperature}).encode())
-        
+
         elif self.path == "/humedad":
 
             self._set_response()
@@ -78,12 +78,12 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         except:
             self.throw_custom_error("Invalid JSON")
             return
-        
+
         if (self.path == "/temperature"):
             if (body_json.get("temperature") is None):
                 self.throw_custom_error("missing temperature")
                 return
-            
+
             try:
                 float(body_json["temperature"])
             except:
@@ -94,14 +94,35 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             temperature = float(body_json['temperature'])
 
             # respond to the client
-            response_data = json.dumps({"message": "Received POST data, new temperature: " 
+            response_data = json.dumps({"message": "Received POST data, new temperature: "
                                         + str(temperature), "status": "OK"})
             self._set_response("application/json")
             self.wfile.write(response_data.encode())
             return
         
+        if (self.path == "/humedad"):
+            if (body_json.get("humedad") is None):
+                self.throw_custom_error("missing humedad")
+                return
+
+            try:
+                float(body_json["humedad"])
+            except:
+                self.throw_custom_error("Invalid humedad")
+                return
+
+            global humedad
+            humedad = float(body_json['humedad'])
+
+            # respond to the client
+            response_data = json.dumps({"message": "Received POST data, new humedad: "
+                                        + str(humedad), "status": "OK"})
+            self._set_response("application/json")
+            self.wfile.write(response_data.encode())
+            return
+
         global contador
-        
+        """"
         if (self.path == "/counter"):
             #if (body_json.get('increment') is None or body_json.get('drecrement') is None):
                 #self.throw_custom_error("Missing increment or drecrement")
@@ -111,10 +132,9 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                 contador += 1
             elif body_json.get('action') == 'decrement':
                 contador -= 1
-                
+        """
         "'"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        
-        """"
+
         # Check if action and quantity are present
         if (body_json.get('action') is None or body_json.get('quantity') is None):
             self.throw_custom_error("Missing action or quantity")
@@ -136,14 +156,12 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             contador += int(body_json['quantity'])
         elif (body_json['action'] == 'desc'):
             contador -= int(body_json['quantity'])
-        """
 
         # Respond to the client
         response_data = json.dumps(
             {"message": "Received POST data, new value: " + str(contador), "status": "OK"})
         self._set_response("application/json")
         self.wfile.write(response_data.encode())
-        
 
 
 def run_server(server_class=HTTPServer, handler_class=MyHTTPRequestHandler, port=7800):
@@ -155,4 +173,3 @@ def run_server(server_class=HTTPServer, handler_class=MyHTTPRequestHandler, port
 
 if __name__ == "__main__":
     run_server()
-
