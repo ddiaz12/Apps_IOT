@@ -1,13 +1,12 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
-#include <WiFiClient.h>
 
 // Replace with your network credentials
-const char *ssid = "Totalplay-2.4G-fc60";
-const char *password = "tp121314";
+const char *ssid = "W_Aula_WB11";
+const char *password = "itcolima6";
 
 // Replace with the URL of the resource you want to get
-const char *url = "https://193e-2806-2f0-5261-fc23-2991-c999-c64a-962c.ngrok-free.app";
+const char *url = "http://25cd-187-190-35-202.ngrok-free.app/counter";
 
 void setup()
 {
@@ -26,14 +25,12 @@ void setup()
 
 void loop()
 {
-  // Create an HTTPClient object
-  HTTPClient http;
-
   // Create a WiFiClient object
-  WiFiClient wifiClient;
+  WiFiClient client;
 
-  // Begin the HTTP GET request using the WiFiClient object
-  http.begin(wifiClient, url);
+  // Create an HTTPClient object and pass the WiFiClient
+  HTTPClient http;
+  http.begin(client, url);
 
   // Send the request
   int httpCode = http.GET();
@@ -64,4 +61,93 @@ void loop()
   delay(1000);
 }
 
-ngrok http 7800 --scheme=http --scheme=https     
+
+
+""''""""""""""""""""""""""""""""""""""""
+
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <ArduinoJson.h>
+
+// Replace with your network credentials
+const char *ssid = "Totalplay-2.4G-fc60";
+const char *password = "tp121314";
+
+// Replace with the URL of your Python server
+const char *serverUrl = "http://4517-2806-2f0-5261-fc23-9de0-2266-1ad0-666a.ngrok-free.app/counter";
+
+// Define the GPIO pins for your buttons
+const int botonIncrementarPin = 14; // GPIO14 (D5)
+const int botonDecrementarPin = 12; // GPIO12 (D6)
+
+void setup()
+{
+  Serial.begin(115200);
+
+  // Connect to the Wi-Fi network
+  Serial.println("Connecting to Wi-Fi...");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("Connected!");
+
+  // Set the button pins as inputs with pull-up resistors
+  pinMode(botonIncrementarPin, INPUT_PULLUP);
+  pinMode(botonDecrementarPin, INPUT_PULLUP);
+}
+
+void loop()
+{
+  // Check if the button connected to D5 (GPIO14) is pressed
+  if (digitalRead(botonIncrementarPin) == LOW)
+  {
+    sendPostRequest("/counter", "increment"); // Send a POST request to increment the value
+    delay(1000); // Delay to debounce the button
+  }
+
+  // Check if the button connected to D6 (GPIO12) is pressed
+  if (digitalRead(botonDecrementarPin) == LOW)
+  {
+    sendPostRequest("/counter", "decrement"); // Send a POST request to decrement the value
+    delay(1000); // Delay to debounce the button
+  }
+}
+
+void sendPostRequest(const char *path, const char *action)
+{
+  WiFiClient client;
+  HTTPClient http;
+
+  // Construct the full URL for the request
+  String url = serverUrl;
+  url += path;
+
+  // Create a JSON object and add the action
+  StaticJsonDocument<200> jsonDoc;
+  jsonDoc["action"] = action;
+
+  // Serialize the JSON object to a string
+  String jsonPayload;
+  serializeJson(jsonDoc, jsonPayload);
+
+  // Send the POST request with the JSON payload as the body
+  int httpCode = http.POST(url, jsonPayload);
+  if (httpCode > 0)
+  {
+    // Success!
+    Serial.println("HTTP POST request successful!");
+    String payload = http.getString();
+    Serial.println(payload);
+  }
+  else
+  {
+    // Error!
+    Serial.println("HTTP POST request failed!");
+    Serial.println(httpCode);
+  }
+
+  http.end();
+}

@@ -5,7 +5,6 @@ import os
 contador = 11
 led = False
 temperature = 0
-humedad = 50
 
 
 class MyHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -58,16 +57,9 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
             self._set_response()
             self.wfile.write(json.dumps({"temperature": temperature}).encode())
-        
-        elif self.path == "/humedad":
-
-            self._set_response()
-            self.wfile.write(json.dumps({"humidity": humedad}).encode())
         else:
             # send bad request response
             self.throw_custom_error("Invalid path")
-
-    """"""""""""""""""""""""""""""""""""""""""""
 
     def do_POST(self):
         content_length = int(self.headers["Content-Length"])
@@ -101,20 +93,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             return
         
         global contador
-        
-        if (self.path == "/counter"):
-            #if (body_json.get('increment') is None or body_json.get('drecrement') is None):
-                #self.throw_custom_error("Missing increment or drecrement")
-                #return
-            
-            if body_json.get('action') == 'increment':
-                contador += 1
-            elif body_json.get('action') == 'decrement':
-                contador -= 1
-                
-        "'"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        
-        """"
+
         # Check if action and quantity are present
         if (body_json.get('action') is None or body_json.get('quantity') is None):
             self.throw_custom_error("Missing action or quantity")
@@ -136,7 +115,6 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             contador += int(body_json['quantity'])
         elif (body_json['action'] == 'desc'):
             contador -= int(body_json['quantity'])
-        """
 
         # Respond to the client
         response_data = json.dumps(
