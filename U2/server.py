@@ -62,7 +62,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         elif self.path == "/humedad":
 
             self._set_response()
-            self.wfile.write(json.dumps({"humidity": humedad}).encode())
+            self.wfile.write(json.dumps({"humedad": humedad}).encode())
         else:
             # send bad request response
             self.throw_custom_error("Invalid path")
