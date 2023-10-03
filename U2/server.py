@@ -78,6 +78,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         except:
             self.throw_custom_error("Invalid JSON")
             return
+        
 
         if (self.path == "/temperature"):
             if (body_json.get("temperature") is None):
@@ -122,18 +123,6 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             return
 
         global contador
-        """"
-        if (self.path == "/counter"):
-            #if (body_json.get('increment') is None or body_json.get('drecrement') is None):
-                #self.throw_custom_error("Missing increment or drecrement")
-                #return
-            
-            if body_json.get('action') == 'increment':
-                contador += 1
-            elif body_json.get('action') == 'decrement':
-                contador -= 1
-        """
-        "'"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
         # Check if action and quantity are present
         if (body_json.get('action') is None or body_json.get('quantity') is None):
