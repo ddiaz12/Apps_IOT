@@ -6,7 +6,7 @@ contador = 11
 led = False
 temperature = 0
 humedad = 0
-
+v
 
 class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
