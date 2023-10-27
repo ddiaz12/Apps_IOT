@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Página con python owo</title>
+  <style>
+    body {
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: row; 
+      justify-content: space-around; 
+      align-items: center;
+      height: 100vh;
+      background-image: url("https://gifdb.com/images/high/scared-anime-girl-4tueaajp4p3d0lva.webp");
+      background-size:100%;
+    }
+
+    .sectionContainer {
+      background-color: #9c2baf;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      margin: 20px;
+      padding: 20px;
+      width: 300px; 
+      text-align: center;
+    }
+
+    h2, h3 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .buttonContainer {
+      display: flex;
+      flex-direction: row; 
+      align-items: center;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    button {
+      background-color: #3498db;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 0 5px;
+      padding: 5px 10px;
+      text-decoration: none;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #counter, #temperature, #humidity {
+      font-size: 20px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="sectionContainer">
+    <h3>Temperatura:</h3>
+    <div class="buttonContainer">
+      <h2 id="temperature">## °C</h2>
+    </div>
+  </div>
+
+  <div class="sectionContainer">
+    <h3>humidity:</h3>
+    <div class="buttonContainer">
+      <h2 id="humidity">##%</h2>
+    </div>
+  </div>
+
+  <div class="sectionContainer">
+    <h2>Control de LED</h2>
+    <div class="buttonContainer">
+      <button id="onButton">ON</button>
+      <button id="offButton">OFF</button>
+    </div>
+  </div>
+
+  <div class="sectionContainer">
+    <h3>Valor del contador:</h3>
+    <div class="buttonContainer">
+      <h2 id="counter">##</h2>
+    </div>
+  </div>
+
+</body>
+<script>
+  const onButton = document.getElementById("onButton");
+  const offButton = document.getElementById("offButton");
+
+  onButton.addEventListener("click", () => {
+    fetch("/led/on");
+  });
+
+  offButton.addEventListener("click", () => {
+    fetch("/led/off");
+  });
+
+  const updateCounter = () => {
+    fetch("/counter")
+      .then((response) => response.json())
+      .then((data) => {
+        document.getElementById("counter").innerHTML = data.contador;
+      });
+
+    fetch("/temperature")
+      .then((response) => response.json())
+      .then((data) => {
+        document.getElementById("temperature").innerHTML =
+          data.temperature + " °C";
+      });
+
+    fetch("/humidity")
+      .then((response) => response.json())
+      .then((data) => {
+        document.getElementById("humidity").innerHTML = data.humidity + " %";
+      });
+  };
+
+  setInterval(updateCounter, 1000);
+</script>
+</html>
