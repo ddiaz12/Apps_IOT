@@ -1,148 +1,197 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
-    <title>MQTT con JS</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-      }
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <title>MQTT con JS</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+            }
 
-      h1 {
-        color: #333;
-      }
+            h1 {
+                color: #333;
+            }
 
-      button {
-        background-color: #3498db;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        cursor: pointer;
-      }
+            button {
+                background-color: #3498db;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                cursor: pointer;
+            }
 
-      button.led_off {
-        background-color: #e74c3c;
-      }
+            button.led_off {
+                background-color: #e74c3c;
+            }
 
-      input[type="text"] {
-        padding: 5px;
-      }
+            input[type="text"] {
+                padding: 5px;
+            }
 
-      p#output_console {
-        text-align: left;
-        font-family: monospace;
-        margin: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>MQTT CON JS</h1>
-    <button
-      id="toggle"
-      class="led_on"
-    >
-      Apagar led
-    </button>
-    <button  
-    id = "fetch_data"
-    class = "led_on">
-        Solicitar datos historicos
-      </button>
-    <input
-      type="text"
-      id="msgMQTT"
-    />
-    <p id="output_console"></p>
-    <!-- Toggle button for sending JSON -->
-  </body>
-  <script src="mqtt.js"></script>
-  <script>
-    let PUB_TOPIC = "monitores/web"
-    let msgMQTT = document.getElementById("msgMQTT");
-    let output_console = document.getElementById("output_console");
-    msgMQTT.addEventListener("keyup", (e) => {
-      if (e.keyCode === 13) {
-        console.log("Sending:", msgMQTT.value);
-        client.publish("test", msgMQTT.value);
-        msgMQTT.value = "";
-      }
-    });
+            p#output_console {
+                text-align: left;
+                font-family: monospace;
+                margin: 10px;
+            }
 
-    let toggle = document.getElementById("toggle");
-    toggle.addEventListener("click", (e) => {
-      if (toggle.className == "led_on") {
-        toggle.className = "led_off";
-        toggle.innerHTML = "Encender led";
-        client.publish("test", JSON.stringify({ led: 0 }));
-      } else {
-        toggle.className = "led_on";
-        toggle.innerHTML = "Apagar led";
-        client.publish("test", JSON.stringify({ led: 1 }));
-      }
-    });
+            #line-chart {
+                display: block;
+                margin: auto;
+                max-width: 80vw;
+                max-height: 80vh;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>MQTT CON JS</h1>
+        <button
+            id="toggle"
+            class="led_on"
+        >
+            Apagar led
+        </button>
+        <button
+            id="fetch_data"
+            class="led_on"
+        >
+            Solicitar datos históricos
+        </button>
+        <input
+            type="text"
+            id="msgMQTT"
+        />
+        <canvas
+            id="line-chart"
+            width="800"
+            height="450"
+        ></canvas>
 
-    document.getElementById("fetch_data").addEventListener("click",
-    (e) => {
-      client.publish(
-        PUB_TOPIC,
-        JSON.stringify(
-          {
-            from: "WEB",
-            to: "server",
-            action: "GET_DATA",
-          }
-        )
-      )
+        <p id="output_console"></p>
+        <!-- Toggle button for sending JSON -->
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        let chart = new Chart(document.getElementById("line-chart"), {
+            type: "line",
+            data: {
+                labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
+                datasets: [
+                    {
+                        data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
+                        label: "Humedad",
+                        borderColor: "#3e95cd",
+                        fill: false,
+                    },
+                    {
+                        data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
+                        label: "Temperatura",
+                        borderColor: "#8e5ea2",
+                        fill: false,
+                    },
+                ],
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: "World population per region (in millions)",
+                },
+            },
+        });
+
+        function updateChart(labels, temperatures, humidities) {
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = temperatures;
+            chart.data.datasets[1].data = humidities;
+            chart.update();
         }
-    )
-    
+    </script>
+    <script src="mqtt.js"></script>
+    <script>
+        let PUB_TOPIC = "monitores/web_BACANO";
+        let msgMQTT = document.getElementById("msgMQTT");
+        let output_console = document.getElementById("output_console");
+        msgMQTT.addEventListener("keyup", (e) => {
+            if (e.keyCode === 13) {
+                console.log("Sending:", msgMQTT.value);
+                client.publish(PUB_TOPIC, msgMQTT.value);
+                msgMQTT.value = "";
+            }
+        });
 
-    /***
-     * Browser
-     * This document explains how to use MQTT over WebSocket with the ws and wss protocols.
-     * EMQX's default port for ws connection is 8083 and for wss connection is 8084.
-     * Note that you need to add a path after the connection address, such as /mqtt.
-     */
-    const url = "wss://k8da39e9.ala.us-east-1.emqxsl.com:8084/mqtt";
+        let toggle = document.getElementById("toggle");
+        toggle.addEventListener("click", (e) => {
+            if (toggle.className == "led_on") {
+                toggle.className = "led_off";
+                toggle.innerHTML = "Encender led";
+                client.publish(PUB_TOPIC, JSON.stringify({ led: 0 }));
+            } else {
+                toggle.className = "led_on";
+                toggle.innerHTML = "Apagar led";
+                client.publish(PUB_TOPIC, JSON.stringify({ led: 1 }));
+            }
+        });
 
-    // Create an MQTT client instance
-    const options = {
-      // Clean session
-      clean: true,
-      connectTimeout: 4000,
-      // Authentication
-      clientId: "emqxjs_" + Math.random().toString(16).substr(2, 8),
-      username: "server",
-      password: "password",
-    };
+        document.getElementById("fetch_data").addEventListener("click", (e) => {
+            client.publish(
+                PUB_TOPIC,
+                JSON.stringify({
+                    from: "WEB",
+                    to: "server",
+                    action: "GET_DATA",
+                })
+            );
+        });
 
-    const client = mqtt.connect(url, options);
+        /***
+         * Browser
+         * This document explains how to use MQTT over WebSocket with the ws and wss protocols.
+         * EMQX's default port for ws connection is 8083 and for wss connection is 8084.
+         * Note that you need to add a path after the connection address, such as /mqtt.
+         */
+        const url = "wss://k8da39e9.ala.us-east-1.emqxsl.com:8084/mqtt";
 
-    client.on("connect", function () {
-      console.log("Connected");
-      // Subscribe to a topic
-      client.subscribe(PUB_TOPIC, function (err) {
-        if (!err) {
-          // Publish a message to a topic
-          console.log("Message is published");
-          client.publish(PUB_TOPIC, "Hello mqtt from js");
-        }
-      });
-    });
+        // Create an MQTT client instance
+        const options = {
+            // Clean session
+            clean: true,
+            connectTimeout: 4000,
+            // Authentication
+            clientId: "emqxjs_" + Math.random().toString(16).substr(2, 8),
+            username: "user",
+            password: "password",
+        };
 
-    // Receive messages
-    client.on("message", function (topic, message) {
-      // message is Buffer
-      output_console.innerHTML = message.toString() + "<br>" + output_console.innerHTML;
-      // client.end();
-    });
-  </script>
+        const client = mqtt.connect(url, options);
+
+        client.on("connect", function () {
+            console.log("Connected");
+            // Subscribe to a topic
+            client.subscribe(PUB_TOPIC, function (err) {
+                if (!err) {
+                    // Publish a message to a topic
+                    console.log("Message is published");
+                    client.publish(PUB_TOPIC, "Hello mqtt from js");
+                }
+            });
+        });
+
+        // Receive messages
+        client.on("message", function (topic, message) {
+            // message is Buffer
+            output_console.innerHTML = message.toString() + "<br>" + output_console.innerHTML;
+            try {
+                let data = JSON.parse(message.toString());
+                if (data["from"] == "server" && data["to"] == "WEB") {
+                    updateChart(data["data"]["labels"], data["data"]["temperatures"], data["data"]["humidities"]);
+                }
+            } catch (e) {
+                console.log("No es un JSON");
+            }
+        });
+    </script>
 </html>
-page_mqtt.html
-Mostrando page_mqtt.html.

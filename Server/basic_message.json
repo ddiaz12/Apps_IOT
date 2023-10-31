@@ -1,0 +1,9 @@
+{
+    "from": "ESP32",
+    "to": "server",
+    "action": "SEND_DATA",
+    "data": {
+        "temperature": 30.5,
+        "humidity": 100.1
+    }
+}

@@ -106,8 +106,10 @@ def on_message(client, userdata, msg):
             db.disconnect()
             print("Data retrieved from database")
             #send data to client
-            msg_dict = {"action": "SET_DATA", "data": data} 
+            msg_dict = {"from": "server", "to": msg_dict["from"],
+                        "action": "SEND_DATA", "data": data}
             out_msg = json.dumps(msg_dict)
+            client.publish(msg.topic, out_msg)
 
     except Exception as e:
         print(e)

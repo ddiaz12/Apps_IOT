@@ -1,8 +1,9 @@
+from cProfile import label
 import sqlite3
 
 
 class DBStorage:
-    def __init__(self, db_name = "data_base"):
+    def __init__(self, db_name = "base.db"):
         self.db_name = db_name
         self.db = None
         self.cursor = None
@@ -25,7 +26,22 @@ class DBStorage:
 
     def get_measurements(self):
         self.cursor.execute("SELECT * FROM mediciones")
-        return self.cursor.fetchall()
+        labels = []
+        temperatures = []
+        humidities = []
+        
+        for row in self.cursor.fetchall():
+            labels.append(row[3])
+            temperatures.append(row[1])
+            humidities.append(row[2])
+            
+        return{
+            "labels": labels,
+            "temperatures": temperatures,
+            "humidities":humidities
+        }
+            
+        #return self.cursor.fetchall()
 
 
 if __name__ == "__main__":
