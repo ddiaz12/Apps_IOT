@@ -1,9 +1,20 @@
-{
-    "from": "ESP32",
-    "to": "server",
-    "action": "SEND_DATA",
-    "data": {
-        "temperature": 30.5,
-        "humidity": 100.1
+[
+    {
+        "from": "ESP32",
+        "to": "server",
+        "action": "SEND_DATA",
+        "data": {
+            "temperature": 30.5,
+            "humidity": 100.1
+        }
+    },
+    {
+        "action": "GET_DATA"
+    },
+    {
+        "from": "ESP32",
+        "to": "broadcast",
+        "action": "UPDATE_CONTER",
+        "value": 1
     }
-}
+]

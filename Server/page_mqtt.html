@@ -65,6 +65,7 @@
             type="text"
             id="msgMQTT"
         />
+        <p id = "counter_display"> Esperando.... </p>
         <canvas
             id="line-chart"
             width="800"
@@ -188,6 +189,8 @@
                 let data = JSON.parse(message.toString());
                 if (data["from"] == "server" && data["to"] == "WEB") {
                     updateChart(data["data"]["labels"], data["data"]["temperatures"], data["data"]["humidities"]);
+                }else if (data ["from"] == "ESP32" && data["to"] == "broadcast" && data["action"] == "UPDATE_COUNTER") {
+                    document.getElementById("counter_display").innerHTML = data["value"];
                 }
             } catch (e) {
                 console.log("No es un JSON");
