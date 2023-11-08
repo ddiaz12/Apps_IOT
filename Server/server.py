@@ -117,7 +117,7 @@ def on_message(client, userdata, msg):
 
 def connect_mqtt():
     client = mqtt_client.Client(CLIENT_ID)
-    client.tls_set(ca_certs='U3\MQTT\emqxsl-ca.crt')
+    client.tls_set(ca_certs='U3\\MQTT\\emqxsl-ca.crt')
     client.username_pw_set(USERNAME, PASSWORD)
     client.on_connect = on_connect
     client.on_message = on_message

@@ -4,8 +4,8 @@
         "to": "server",
         "action": "SEND_DATA",
         "data": {
-            "temperature": 30.5,
-            "humidity": 100.1
+            "temperature": 34.5,
+            "humidity": 99.1
         }
     },
     {
@@ -15,6 +15,6 @@
         "from": "ESP32",
         "to": "broadcast",
         "action": "UPDATE_CONTER",
-        "value": 1
+        "value": 8
     }
 ]
