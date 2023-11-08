@@ -10,6 +10,9 @@ const char* mqttServer = "k8da39e9.ala.us-east-1.emqxsl.com";
 const int mqttPort = 8084;
 const char* mqttUser = "server";
 const char* mqttPassword = "password";
+const int PIN_BOTON_INCREMENTAR = 4; // Cambia el número del pin según la conexión real
+const int PIN_BOTON_DECREMENTAR = 5; // Cambia el número del pin según la conexión real
+
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -28,6 +31,8 @@ void setup() {
   // Inicializa la conexión MQTT
   client.setServer(mqttServer, mqttPort);
   client.setCallback(callback);
+  pinMode(PIN_BOTON_INCREMENTAR, INPUT);
+  pinMode(PIN_BOTON_DECREMENTAR, INPUT);
 }
 
 void loop() {
@@ -35,7 +40,20 @@ void loop() {
     reconnect();
   }
   client.loop();
+
+  // Verificar si el botón de incrementar se ha presionado
+  if (digitalRead(PIN_BOTON_INCREMENTAR) == LOW) {
+    incrementarValor();
+    delay(100); // Agrega un pequeño retraso para evitar múltiples incrementos si se mantiene presionado el botón
+  }
+
+  // Verificar si el botón de decrementar se ha presionado
+  if (digitalRead(PIN_BOTON_DECREMENTAR) == LOW) {
+    decrementarValor();
+    delay(100); // Agrega un pequeño retraso para evitar múltiples decrementos si se mantiene presionado el botón
+  }
 }
+
 
 void callback(char* topic, byte* payload, unsigned int length) {
   // Este es el manejador de mensajes MQTT de entrada, si es necesario
@@ -81,3 +99,4 @@ void decrementarValor() {
   valor--;
   enviarValor(valor);
 }
+
