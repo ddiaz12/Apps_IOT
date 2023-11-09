@@ -14,7 +14,7 @@
     {
         "from": "ESP32",
         "to": "broadcast",
-        "action": "UPDATE_CONTER",
-        "value": 8
+        "action": "UPDATE_COUNTER",
+        "value": 1
     }
 ]
