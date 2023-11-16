@@ -9,14 +9,14 @@ from db_storage import DBStorage
 
 from paho.mqtt import client as mqtt_client
 
-BROKER = "k8da39e9.ala.us-east-1.emqxsl.com"
+BROKER = 'k8da39e9.ala.us-east-1.emqxsl.com'
 PORT = 8883
 SUB_TOPIC = "monitores/#"
 TOPIC = "monitores/server"
 # generate client ID with pub prefix randomly
-CLIENT_ID = f"python-mqtt-tls-pub-sub-{random.randint(0, 1000)}"
-USERNAME = "server"
-PASSWORD = "password"
+CLIENT_ID = f'python-mqtt-tls-pub-sub-{random.randint(0, 1000)}'
+USERNAME = 'server'
+PASSWORD = 'password'
 
 FIRST_RECONNECT_DELAY = 1
 RECONNECT_RATE = 2
@@ -31,7 +31,7 @@ def on_connect(client, userdata, flags, rc):
         print("Connected to MQTT Broker!")
         client.subscribe(SUB_TOPIC)
     else:
-        print(f"Failed to connect, return code {rc}")
+        print(f'Failed to connect, return code {rc}')
 
 
 def on_disconnect(client, userdata, rc):
@@ -51,7 +51,8 @@ def on_disconnect(client, userdata, rc):
         reconnect_delay *= RECONNECT_RATE
         reconnect_delay = min(reconnect_delay, MAX_RECONNECT_DELAY)
         reconnect_count += 1
-    logging.info("Reconnect failed after %s attempts. Exiting...", reconnect_count)
+    logging.info("Reconnect failed after %s attempts. Exiting...",
+                 reconnect_count)
     global FLAG_EXIT
     FLAG_EXIT = True
 
@@ -68,7 +69,7 @@ def on_message(client, userdata, msg):
             return
 
         # check if message is for me
-        if msg_dict["to"] != "server":
+        if msg_dict['to'] != "server":
             return
 
         # check if message has "action" key
@@ -85,10 +86,7 @@ def on_message(client, userdata, msg):
                 return
 
             # verify if data has "temperature" and "humidity" keys
-            if (
-                "temperature" not in msg_dict["data"]
-                or "humidity" not in msg_dict["data"]
-            ):
+            if "temperature" not in msg_dict["data"] or "humidity" not in msg_dict["data"]:
                 return
 
             # TODO store data in database
@@ -96,23 +94,20 @@ def on_message(client, userdata, msg):
             db = DBStorage("base.db")
             db.connect()
             db.create_table()
-            db.insert(msg_dict["data"]["humidity"], msg_dict["data"]["temperature"])
+            db.insert(msg_dict["data"]["humidity"],
+                      msg_dict["data"]["temperature"])
             print("Data stored in database owo")
             db.disconnect()
         elif msg_dict["action"] == "GET_DATA":
             print("Getting data from database..")
             db = DBStorage()
             db.connect()
-            data = db.get_measurements()
+            data = db.get_measurements_last_hour()
             db.disconnect()
             print("Data retrieved from database")
-            # send data to client
-            msg_dict = {
-                "from": "server",
-                "to": msg_dict["from"],
-                "action": "SEND_DATA",
-                "data": data,
-            }
+            #send data to client
+            msg_dict = {"from": "server", "to": msg_dict["from"],
+                        "action": "SEND_DATA", "data": data}
             out_msg = json.dumps(msg_dict)
             client.publish(msg.topic, out_msg)
 
@@ -134,7 +129,7 @@ def connect_mqtt():
 def publish(client):
     msg_count = 0
     while not FLAG_EXIT:
-        msg_dict = {"msg": msg_count, "from": "server", "to": "client"}
+        msg_dict = {'msg': msg_count, 'from': 'server', 'to': 'client'}
         msg = json.dumps(msg_dict)
         if not client.is_connected():
             logging.error("publish: MQTT client is not connected!")
@@ -147,15 +142,14 @@ def publish(client):
             # print(f'Send `{msg}` to topic `{TOPIC}`')
             pass
         else:
-            print(f"Failed to send message to topic {TOPIC}")
+            print(f'Failed to send message to topic {TOPIC}')
         msg_count += 1
         time.sleep(1)
 
 
 def run():
     logging.basicConfig(
-        format="%(asctime)s - %(levelname)s: %(message)s", level=logging.DEBUG
-    )
+        format='%(asctime)s - %(levelname)s: %(message)s', level=logging.DEBUG)
     client = connect_mqtt()
     client.loop_start()
     time.sleep(1)
@@ -165,7 +159,7 @@ def run():
         client.loop_stop()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run()
     while True:
         continue

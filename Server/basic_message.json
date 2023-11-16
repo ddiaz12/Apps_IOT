@@ -4,8 +4,8 @@
         "to": "server",
         "action": "SEND_DATA",
         "data": {
-            "temperature": 34.5,
-            "humidity": 99.1
+            "temperature":90.5,
+            "humidity": 70.1
         }
     },
     {
