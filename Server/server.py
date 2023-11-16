@@ -102,7 +102,7 @@ def on_message(client, userdata, msg):
             print("Getting data from database..")
             db = DBStorage()
             db.connect()
-            data = db.get_measurements()
+            data = db.get_measurements_last_hour()
             db.disconnect()
             print("Data retrieved from database")
             #send data to client

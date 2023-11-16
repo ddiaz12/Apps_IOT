@@ -110,8 +110,8 @@
 
         function updateChart(labels, temperatures, humidities) {
             chart.data.labels = labels;
-            chart.data.datasets[0].data = temperatures;
-            chart.data.datasets[1].data = humidities;
+            chart.data.datasets[1].data = temperatures;
+            chart.data.datasets[0].data = humidities;
             chart.update();
         }
     </script>
