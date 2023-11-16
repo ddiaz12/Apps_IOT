@@ -61,6 +61,10 @@
         >
             Solicitar datos históricos
         </button>
+        <button
+            id="momazo">
+            Solicitar momazo
+        </button>
         <input
             type="text"
             id="msgMQTT"
@@ -147,6 +151,40 @@
                 })
             );
         });
+
+        document.getElementById("momazo").addEventListener("click", async () => {
+    const url = 'https://dad-jokes.p.rapidapi.com/random/joke';
+    const options = {
+        method: 'GET',
+        headers: {
+            'X-RapidAPI-Key': '6d2d6d9c6dmshea55cb890fec6f6p1f127bjsn410937b0b91d',
+            'X-RapidAPI-Host': 'dad-jokes.p.rapidapi.com'
+        }
+    };
+
+    try {
+        const response = await fetch(url, options);
+        const result = await response.json();
+        
+        // Extract setup and punchline
+        const setup = result.body[0].setup;
+        const punchline = result.body[0].punchline;
+        const chamacos = "Chamacos"
+
+        console.log('Setup:', setup);
+        console.log('Punchline:', punchline);
+        console.log(chamacos)
+
+        // Assuming client is defined elsewhere in your code
+        client.publish(PUB_TOPIC, JSON.stringify({chamacos, setup, punchline }));
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+
+
+
 
         /***
          * Browser
