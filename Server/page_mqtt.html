@@ -9,12 +9,37 @@
         <title>MQTT con JS</title>
         <style>
             body {
-                font-family: Arial, sans-serif;
+                font-family: 'Arial', sans-serif;
                 text-align: center;
+                background: #f4f4f4 url('ah.jpg') no-repeat center center fixed;
+                background-size: cover;
+                margin: 0;
+                padding: 0;
+            }
+
+            header {
+                background-color: #3498db;
+                padding: 20px;
             }
 
             h1 {
-                color: #333;
+                color: #fff;
+            }
+
+            main {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px;
+                background-color: rgba(255, 255, 255, 0.8); /* Fondo semitransparente para mejorar la legibilidad */
+                border-radius: 10px;
+                margin: 20px;
+            }
+
+            #button-container {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 20px;
             }
 
             button {
@@ -23,69 +48,67 @@
                 padding: 10px 20px;
                 border: none;
                 cursor: pointer;
+                margin: 10px;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
             }
 
             button.led_off {
                 background-color: #e74c3c;
             }
 
-            input[type="text"] {
-                padding: 5px;
-            }
-
-            p#output_console {
-                text-align: left;
-                font-family: monospace;
-                margin: 10px;
-            }
-
-            #line-chart {
+            canvas {
                 display: block;
                 margin: auto;
                 max-width: 80vw;
-                max-height: 80vh;
+                max-height: 60vh;
+            }
+
+            #latest-data {
+                background-color: #ecf0f1;
+                padding: 10px;
+                border-radius: 10px;
+                margin-top: 20px;
+                display: flex;
+                justify-content: space-around;
+                width: 50%;
+            }
+
+            #latest-temperature,
+            #latest-humidity {
+                margin: 10px;
+                font-size: 18px;
+                color: #3498db;
+            }
+
+            #output_console {
+                text-align: left;
+                font-family: 'Courier New', monospace;
+                margin: 10px;
             }
         </style>
     </head>
     <body>
-        <h1>MQTT CON JS</h1>
-        <button
-            id="toggle"
-            class="led_on"
-        >
-            Apagar led
-        </button>
-        <button
-            id="fetch_data"
-            class="led_on"
-        >
-            Solicitar datos históricos
-        </button>
-        <button
-            id="momazo">
-            Solicitar momazo
-        </button>
-        <input
-            type="text"
-            id="msgMQTT"
-        />
-        
-        <p id="latest-temperature">Temperatura: </p>
-        <p id="latest-humidity">Humedad: </p>
-        <canvas
-            id="line-chart"
-            width="800"
-            height="450"
-        ></canvas>
-
-        <p id="output_console"></p>
-        <!-- Toggle button for sending JSON -->
+        <header>
+            <h1>MQTT CON JS</h1>
+        </header>
+        <main>
+            <div id="button-container">
+                <button id="toggle" class="led_on">Apagar led</button>
+                <button id="fetch_data" class="led_on">Solicitar datos históricos</button>
+                <button id="momazo">Solicitar momazo</button>
+            </div>
+            <div id="latest-data">
+                <p id="latest-temperature">Temperatura: </p>
+                <p id="latest-humidity">Humedad: </p>
+            </div>
+            <canvas id="line-chart" width="800" height="450"></canvas>
+            <p style="display: none;" id="output_console"></p>
+            <p id="momazo-result"></p>
+        </main>
     </body>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
     <script>
-
-
-
         let chart = new Chart(document.getElementById("line-chart"), {
             type: "line",
             data: {
@@ -113,36 +136,23 @@
             },
         });
 
-        
         function updateChart(labels, temperatures, humidities) {
-    chart.data.labels = labels;
-    chart.data.datasets[1].data = temperatures;
-    chart.data.datasets[0].data = humidities;
-    chart.update();
+            chart.data.labels = labels;
+            chart.data.datasets[1].data = temperatures;
+            chart.data.datasets[0].data = humidities;
+            chart.update();
 
-    // Update the latest values
-    if (temperatures.length > 0 && humidities.length > 0) {
-        latestTemperatureLabel.innerText = "Temperatura: " + temperatures[temperatures.length - 1];
-        latestHumidityLabel.innerText = "Humedad: " + humidities[humidities.length - 1];
-    }
-}
-
+            // Update the latest values
+            if (temperatures.length > 0 && humidities.length > 0) {
+                document.getElementById("latest-temperature").innerText = "Temperatura: " + temperatures[temperatures.length - 1];
+                document.getElementById("latest-humidity").innerText = "Humedad: " + humidities[humidities.length - 1];
+            }
+        }
     </script>
     <script src="mqtt.js"></script>
-    
     <script>
         let PUB_TOPIC = "monitores/web_BACANO";
-        let msgMQTT = document.getElementById("msgMQTT");
         let output_console = document.getElementById("output_console");
-        msgMQTT.addEventListener("keyup", (e) => {
-            if (e.keyCode === 13) {
-                console.log("Sending:", msgMQTT.value);
-                client.publish(PUB_TOPIC, msgMQTT.value);
-                msgMQTT.value = "";
-            }
-        });
-        let latestTemperatureLabel = document.getElementById("latest-temperature");
-        let latestHumidityLabel = document.getElementById("latest-humidity");
 
         let toggle = document.getElementById("toggle");
         toggle.addEventListener("click", (e) => {
@@ -168,54 +178,43 @@
             );
         });
 
+        let momazoResult = document.getElementById("momazo-result");
+
         document.getElementById("momazo").addEventListener("click", async () => {
-    const url = 'https://dad-jokes.p.rapidapi.com/random/joke';
-    const options = {
-        method: 'GET',
-        headers: {
-            'X-RapidAPI-Key': '6d2d6d9c6dmshea55cb890fec6f6p1f127bjsn410937b0b91d',
-            'X-RapidAPI-Host': 'dad-jokes.p.rapidapi.com'
-        }
-    };
+            const url = 'https://dad-jokes.p.rapidapi.com/random/joke';
+            const options = {
+                method: 'GET',
+                headers: {
+                    'X-RapidAPI-Key': '6d2d6d9c6dmshea55cb890fec6f6p1f127bjsn410937b0b91d',
+                    'X-RapidAPI-Host': 'dad-jokes.p.rapidapi.com'
+                }
+            };
 
-    try {
-        const response = await fetch(url, options);
-        const result = await response.json();
-        
-        // Extract setup and punchline
-        const setup = result.body[0].setup;
-        const punchline = result.body[0].punchline;
-        const chamacos = "Chamacos"
+            try {
+                const response = await fetch(url, options);
+                const result = await response.json();
 
-        console.log('Setup:', setup);
-        console.log('Punchline:', punchline);
-        console.log(chamacos)
+                const setup = result.body[0].setup;
+                const punchline = result.body[0].punchline;
+                const chamacos = "Chamacos"
 
-        // Assuming client is defined elsewhere in your code
-        client.publish(PUB_TOPIC, JSON.stringify({chamacos, setup, punchline }));
-    } catch (error) {
-        console.error(error);
-    }
-});
+                console.log('Setup:', setup);
+                console.log('Punchline:', punchline);
+                console.log(chamacos)
 
+                momazoResult.innerText = `Setup: ${setup}\n Punchline: ${punchline}`;
 
+                client.publish(PUB_TOPIC, JSON.stringify({ chamacos, setup, punchline }));
+            } catch (error) {
+                console.error(error);
+            }
+        });
 
-
-
-        /***
-         * Browser
-         * This document explains how to use MQTT over WebSocket with the ws and wss protocols.
-         * EMQX's default port for ws connection is 8083 and for wss connection is 8084.
-         * Note that you need to add a path after the connection address, such as /mqtt.
-         */
         const url = "wss://k8da39e9.ala.us-east-1.emqxsl.com:8084/mqtt";
 
-        // Create an MQTT client instance
         const options = {
-            // Clean session
             clean: true,
             connectTimeout: 4000,
-            // Authentication
             clientId: "emqxjs_" + Math.random().toString(16).substr(2, 8),
             username: "server",
             password: "password",
@@ -225,25 +224,21 @@
 
         client.on("connect", function () {
             console.log("Connected");
-            // Subscribe to a topic
             client.subscribe(PUB_TOPIC, function (err) {
                 if (!err) {
-                    // Publish a message to a topic
                     console.log("Message is published");
                     client.publish(PUB_TOPIC, "Hello mqtt from js");
                 }
             });
         });
 
-        // Receive messages
         client.on("message", function (topic, message) {
-            // message is Buffer
             output_console.innerHTML = message.toString() + "<br>" + output_console.innerHTML;
             try {
                 let data = JSON.parse(message.toString());
                 if (data["from"] == "server" && data["to"] == "WEB") {
                     updateChart(data["data"]["labels"], data["data"]["temperatures"], data["data"]["humidities"]);
-                }else if (data ["from"] == "ESP32" && data["to"] == "broadcast" && data["action"] == "UPDATE_COUNTER") {
+                } else if (data["from"] == "ESP32" && data["to"] == "broadcast" && data["action"] == "UPDATE_COUNTER") {
                     document.getElementById("counter_display").innerHTML = data["value"];
                 }
             } catch (e) {
