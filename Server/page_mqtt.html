@@ -69,7 +69,9 @@
             type="text"
             id="msgMQTT"
         />
-        <p id="counter_display"> Esperando.... </p>
+        
+        <p id="latest-temperature">Temperatura: </p>
+        <p id="latest-humidity">Humedad: </p>
         <canvas
             id="line-chart"
             width="800"
@@ -81,6 +83,9 @@
     </body>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
+
+
+
         let chart = new Chart(document.getElementById("line-chart"), {
             type: "line",
             data: {
@@ -108,14 +113,23 @@
             },
         });
 
+        
         function updateChart(labels, temperatures, humidities) {
-            chart.data.labels = labels;
-            chart.data.datasets[1].data = temperatures;
-            chart.data.datasets[0].data = humidities;
-            chart.update();
-        }
+    chart.data.labels = labels;
+    chart.data.datasets[1].data = temperatures;
+    chart.data.datasets[0].data = humidities;
+    chart.update();
+
+    // Update the latest values
+    if (temperatures.length > 0 && humidities.length > 0) {
+        latestTemperatureLabel.innerText = "Temperatura: " + temperatures[temperatures.length - 1];
+        latestHumidityLabel.innerText = "Humedad: " + humidities[humidities.length - 1];
+    }
+}
+
     </script>
     <script src="mqtt.js"></script>
+    
     <script>
         let PUB_TOPIC = "monitores/web_BACANO";
         let msgMQTT = document.getElementById("msgMQTT");
@@ -127,6 +141,8 @@
                 msgMQTT.value = "";
             }
         });
+        let latestTemperatureLabel = document.getElementById("latest-temperature");
+        let latestHumidityLabel = document.getElementById("latest-humidity");
 
         let toggle = document.getElementById("toggle");
         toggle.addEventListener("click", (e) => {
