@@ -11,10 +11,16 @@
             body {
                 font-family: 'Arial', sans-serif;
                 text-align: center;
-                background: #f4f4f4 url('ah.jpg') no-repeat center center fixed;
+                background: #f4f4f4 url('wall.jpg') no-repeat center center fixed;
                 background-size: cover;
                 margin: 0;
                 padding: 0;
+            }
+
+            #counter_display {
+                font-size: 20px;
+                color: #2ecc71; /* Color verde, puedes cambiarlo según tus preferencias */
+                margin-top: 10px;
             }
 
             header {
@@ -102,9 +108,11 @@
                 <p id="latest-temperature">Temperatura: </p>
                 <p id="latest-humidity">Humedad: </p>
             </div>
+            <p id="counter_display">Contador: </p>
             <canvas id="line-chart" width="800" height="450"></canvas>
             <p style="display: none;" id="output_console"></p>
             <p id="momazo-result"></p>
+            
         </main>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
