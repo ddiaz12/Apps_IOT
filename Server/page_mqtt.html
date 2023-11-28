@@ -159,9 +159,10 @@
 
             // Update the latest values
             if (temperatures.length > 0 && humidities.length > 0) {
-                document.getElementById("latest-temperature").innerText = "Temperatura: " + temperatures[temperatures.length - 1];
-                document.getElementById("latest-humidity").innerText = "Humedad: " + humidities[humidities.length - 1];
-            }
+    document.getElementById("temperature-value").innerText = temperatures[temperatures.length - 1];
+    document.getElementById("humidity-value").innerText = humidities[humidities.length - 1];
+}
+
         }
     </script>
     <script src="mqtt.js"></script>
